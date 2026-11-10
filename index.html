@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cmoneon - making cool stuff on the internet</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Space Grotesk, Inter, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Font Awesome Icons (for Social Brands) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Tailwind Config for Custom Fonts & OLED Dark Ember/Orange Colors -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        oled: '#0d090a',
+                        surface: '#171012',
+                        surfaceHover: '#221619',
+                        neon: {
+                            cyan: '#ff5733',   /* fiery sunset coral-orange */
+                            purple: '#e11d48', /* rich crimson rose-red */
+                            blue: '#ff7b54'    /* warm terracotta peach-orange */
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Dark Styling - Zero Eye Strain, Warm Ember Vibe */
+        :root {
+            --mouse-x: 50%;
+            --mouse-y: 50%;
+        }
+
+        body {
+            background-color: #0d090a;
+            color: #e7dbd3;
+            overflow-x: hidden;
+            selection-background-color: rgba(255, 87, 51, 0.25);
+            selection-color: #ff7b54;
+        }
+
+        ::selection {
+            background: rgba(255, 87, 51, 0.25);
+            color: #ff7b54;
+        }
+
+        /* Custom Subtle Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d090a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2b1d20;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff5733;
+        }
+
+        /* Subtle Ambient Grid Background */
+        .bg-grid {
+            background-size: 48px 48px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 87, 51, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(225, 29, 72, 0.03) 1px, transparent 1px);
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 25%, black 40%, transparent 100%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 25%, black 40%, transparent 100%);
+        }
+
+        /* Global Mouse Spotlight Effect */
+        #spotlight {
+            background: radial-gradient(
+                750px circle at var(--mouse-x) var(--mouse-y),
+                rgba(255, 87, 51, 0.07),
+                rgba(225, 29, 72, 0.045) 45%,
+                transparent 80%
+            );
+        }
+
+        /* Reveal on Scroll Transitions */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px) scale(0.98);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Stagger delays */
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+
+        /* Card Glow & 3D Tilt */
+        .spotlight-card {
+            position: relative;
+            background: linear-gradient(145deg, rgba(26, 17, 19, 0.85), rgba(18, 11, 13, 0.9));
+            border: 1px solid rgba(255, 123, 84, 0.09);
+            transition: border-color 0.35s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+            transform-style: preserve-3d;
+        }
+
+        .spotlight-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(
+                500px circle at var(--card-mouse-x, 0px) var(--card-mouse-y, 0px),
+                rgba(255, 87, 51, 0.12),
+                rgba(225, 29, 72, 0.06) 40%,
+                transparent 65%
+            );
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .spotlight-card:hover::before {
+            opacity: 1;
+        }
+
+        .spotlight-card:hover {
+            border-color: rgba(255, 87, 51, 0.38);
+            box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.85), 0 0 28px -5px rgba(225, 29, 72, 0.16);
+        }
+
+        /* Sunset Coral/Crimson Text Shimmer */
+        .neon-gradient-text {
+            background: linear-gradient(135deg, #fff0e6 0%, #ff7b54 35%, #ff5733 68%, #e11d48 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Blinking Cursor */
+        .cursor-blink {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: #ff5733;
+            vertical-align: middle;
+            animation: blink 1.1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="relative min-h-screen antialiased selection:bg-neon-cyan/20 selection:text-neon-cyan">
+
+    <!-- Scroll Progress Bar -->
+    <div id="scroll-progress" class="fixed top-0 left-0 h-[2px] bg-gradient-to-r from-neon-cyan via-neon-blue to-neon-purple z-50 w-0 transition-all duration-75"></div>
+
+    <!-- Interactive Ambient Cursor Spotlight -->
+    <div id="spotlight" class="pointer-events-none fixed inset-0 z-10 transition-opacity duration-500"></div>
+
+    <!-- Interactive Background Particle Network Canvas -->
+    <canvas id="bg-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-50"></canvas>
+
+    <!-- Subtle Architectural Grid -->
+    <div class="fixed inset-0 bg-grid pointer-events-none z-0"></div>
+
+    <!-- Floating Navigation Pill -->
+    <header class="fixed top-6 inset-x-0 z-40 flex justify-center px-4">
+        <nav class="flex items-center gap-1 sm:gap-2 px-3.5 py-2 rounded-full bg-surface/85 backdrop-blur-xl border border-neon-cyan/15 shadow-2xl shadow-black/80">
+            <a href="#top" class="px-3 py-1.5 rounded-full font-mono text-sm font-medium text-[#fff0e6] flex items-center gap-1.5 hover:text-neon-cyan transition-colors">
+                <i data-lucide="flame" class="w-3.5 h-3.5 text-neon-cyan"></i>
+                cmoneon
+            </a>
+            <div class="h-4 w-[1px] bg-white/10 mx-1"></div>
+            <a href="#work" class="nav-link px-3 py-1.5 rounded-full text-xs sm:text-sm text-stone-400 hover:text-[#fff0e6] hover:bg-white/[0.05] transition-all">creations</a>
+            <a href="#me" class="nav-link px-3 py-1.5 rounded-full text-xs sm:text-sm text-stone-400 hover:text-[#fff0e6] hover:bg-white/[0.05] transition-all">about me</a>
+            <a href="#socials" class="nav-link px-3 py-1.5 rounded-full text-xs sm:text-sm text-stone-400 hover:text-[#fff0e6] hover:bg-white/[0.05] transition-all">socials</a>
+        </nav>
+    </header>
+
+    <!-- Main Content Container -->
+    <main id="top" class="relative z-20 max-w-5xl mx-auto px-5 sm:px-8 pt-32 sm:pt-40 pb-20">
+
+        <!-- HERO SECTION -->
+        <section class="min-h-[65vh] flex flex-col justify-center">
+            <!-- Status Badge (No pulsing circle) -->
+            <div class="reveal active inline-flex items-center gap-2.5 self-start px-3.5 py-1.5 rounded-full bg-surface border border-neon-cyan/15 text-xs font-mono text-stone-400 mb-8">
+                <i data-lucide="terminal" class="w-3.5 h-3.5 text-neon-cyan"></i>
+                <span>currently: overthinking, and probably hungry</span>
+                <span class="text-stone-600">//</span>
+                <span id="local-clock" class="text-neon-blue">00:00:00 UTC</span>
+            </div>
+
+            <!-- Main Lowercase Identity -->
+            <h1 class="reveal active delay-100 font-display text-5xl sm:text-7xl md:text-8xl font-bold tracking-tight text-[#fff0e6] leading-[1.04] mb-6">
+                hey, i’m <span class="neon-gradient-text">neon</span><span class="text-neon-purple">.</span>
+            </h1>
+
+            <!-- Subtitle with Typewriter Role -->
+            <p class="reveal active delay-200 text-lg sm:text-2xl text-stone-400 max-w-2xl font-light leading-relaxed mb-4">
+                i hang out on the internet and make <span id="typewriter" class="text-[#fff0e6] font-mono border-b border-neon-cyan/50 pb-0.5">weird little web toys</span><span class="cursor-blink ml-1"></span>
+            </p>
+            <p class="reveal active delay-200 text-sm sm:text-base text-stone-500 max-w-xl leading-relaxed mb-10">
+                welcome to my site, a dark-mode corner for my favorite experiments, games, and random late-night creations, have a look around!
+            </p>
+
+            <!-- Hero CTA Button -->
+            <div class="reveal active delay-300 flex flex-wrap items-center gap-4">
+                <a href="#work" class="magnetic-btn group relative inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-neon-cyan/25 to-neon-purple/25 hover:from-neon-cyan/35 hover:to-neon-purple/35 border border-neon-cyan/40 text-[#fff0e6] text-sm font-medium transition-all">
+                    <span>see what i've made</span>
+                    <i data-lucide="flame" class="w-4 h-4 text-neon-cyan group-hover:scale-110 transition-transform"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- COOL PROJECTS SECTION -->
+        <section id="work" class="py-24 scroll-mt-20">
+            <div class="reveal flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+                <div>
+                    <div class="font-mono text-xs uppercase tracking-widest text-neon-cyan mb-2">// 01. stuff i made</div>
+                    <h2 class="font-display text-3xl sm:text-4xl font-bold text-[#fff0e6] tracking-tight">internet creations</h2>
+                </div>
+                <div class="flex items-center gap-2 bg-surface p-1 rounded-xl border border-white/[0.06] self-start">
+                    <button data-filter="all" class="filter-btn active px-3 py-1.5 rounded-lg text-xs font-mono bg-neon-cyan/20 text-neon-cyan transition-all">everything</button>
+                    <button data-filter="games" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-mono text-stone-400 hover:text-[#fff0e6] transition-all">games</button>
+                    <button data-filter="toys" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-mono text-stone-400 hover:text-[#fff0e6] transition-all">art & toys</button>
+                </div>
+            </div>
+
+            <!-- Interactive 3D Tilt Project Grid -->
+            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Project 1 -->
+                <article data-category="toys" class="project-card reveal spotlight-card tilt-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between group cursor-pointer">
+                    <div>
+                        <!-- Custom Abstract SVG Preview -->
+                        <div class="relative h-48 w-full rounded-2xl bg-oled border border-white/[0.05] mb-6 overflow-hidden flex items-center justify-center">
+                            <div class="absolute inset-0 bg-gradient-to-br from-neon-cyan/15 via-transparent to-neon-purple/15 opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <svg class="w-32 h-32 text-neon-cyan group-hover:scale-110 transition-transform duration-500" viewBox="0 0 100 100" fill="none">
+                                <circle cx="50" cy="50" r="36" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 4" class="origin-center animate-[spin_14s_linear_infinite]" />
+                                <circle cx="50" cy="50" r="22" stroke="#e11d48" stroke-width="1.5" />
+                                <circle cx="50" cy="28" r="4" fill="#ff7b54" />
+                                <circle cx="50" cy="50" r="7" fill="#ff5733" />
+                            </svg>
+                            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-mono bg-oled/90 border border-neon-cyan/30 text-neon-cyan">playable</span>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <h3 class="font-display text-xl font-semibold text-[#fff0e6] group-hover:text-neon-cyan transition-colors">solar-slingshot // gravity toy</h3>
+                            <i data-lucide="arrow-up-right" class="w-5 h-5 text-stone-500 group-hover:text-neon-cyan group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"></i>
+                        </div>
+                        <p class="text-sm text-stone-400 leading-relaxed mb-6">
+                            flick tiny glowing asteroids around binary black holes and watch how long they survive before getting yeeted into deep space.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pt-4 border-t border-white/[0.05]">
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">orbital physics</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">time waster</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">canvas</span>
+                    </div>
+                </article>
+
+                <!-- Project 2 -->
+                <article data-category="games" class="project-card reveal delay-100 spotlight-card tilt-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between group cursor-pointer">
+                    <div>
+                        <div class="relative h-48 w-full rounded-2xl bg-oled border border-white/[0.05] mb-6 overflow-hidden flex items-center justify-center">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-neon-purple/20 via-transparent to-neon-blue/10 opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <svg class="w-36 h-32 text-neon-purple group-hover:scale-110 transition-transform duration-500" viewBox="0 0 120 100" fill="none">
+                                <rect x="20" y="20" width="80" height="60" rx="12" stroke="currentColor" stroke-width="1.5"/>
+                                <circle cx="32" cy="30" r="2.5" fill="#ff5733"/>
+                                <circle cx="42" cy="30" r="2.5" fill="#e11d48"/>
+                                <path d="M30 62 Q 45 35, 60 60 T 90 48" stroke="#ff5733" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                            </svg>
+                            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-mono bg-oled/90 border border-neon-purple/30 text-neon-purple">loud & fun</span>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <h3 class="font-display text-xl font-semibold text-[#fff0e6] group-hover:text-neon-cyan transition-colors">lava-lamp.fm // lo-fi synth</h3>
+                            <i data-lucide="arrow-up-right" class="w-5 h-5 text-stone-500 group-hover:text-neon-cyan group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"></i>
+                        </div>
+                        <p class="text-sm text-stone-400 leading-relaxed mb-6">
+                            a squishy 3d metaball lava lamp that reacts to your keyboard mashing and generates ambient late-night synth chords.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pt-4 border-t border-white/[0.05]">
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">synths</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">blobs</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">chill</span>
+                    </div>
+                </article>
+
+                <!-- Project 3 -->
+                <article data-category="toys" class="project-card reveal spotlight-card tilt-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between group cursor-pointer">
+                    <div>
+                        <div class="relative h-48 w-full rounded-2xl bg-oled border border-white/[0.05] mb-6 overflow-hidden flex items-center justify-center">
+                            <div class="absolute inset-0 bg-gradient-to-bl from-neon-blue/15 via-transparent to-neon-cyan/15 opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <svg class="w-32 h-32 text-neon-blue group-hover:scale-110 transition-transform duration-500" viewBox="0 0 100 100" fill="none">
+                                <polygon points="50,15 85,35 85,70 50,90 15,70 15,35" stroke="currentColor" stroke-width="1.5"/>
+                                <polygon points="50,28 72,41 72,64 50,77 28,64 28,41" stroke="#ff5733" stroke-width="1.5" stroke-dasharray="3 3"/>
+                                <circle cx="50" cy="52" r="6" fill="#e11d48"/>
+                            </svg>
+                            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-mono bg-oled/90 border border-neon-blue/30 text-neon-blue">multiplayer</span>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <h3 class="font-display text-xl font-semibold text-[#fff0e6] group-hover:text-neon-cyan transition-colors">cursor-royale // 99-player tag</h3>
+                            <i data-lucide="arrow-up-right" class="w-5 h-5 text-stone-500 group-hover:text-neon-cyan group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"></i>
+                        </div>
+                        <p class="text-sm text-stone-400 leading-relaxed mb-6">
+                            everyone on the webpage shares the same arena. one cursor is "it" and leaves a trail of fire—dodge everyone else in real time.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pt-4 border-t border-white/[0.05]">
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">chaos</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">arcade</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">multiplayer</span>
+                    </div>
+                </article>
+
+                <!-- Project 4 -->
+                <article data-category="games" class="project-card reveal delay-100 spotlight-card tilt-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between group cursor-pointer">
+                    <div>
+                        <div class="relative h-48 w-full rounded-2xl bg-oled border border-white/[0.05] mb-6 overflow-hidden flex items-center justify-center">
+                            <div class="absolute inset-0 bg-gradient-to-r from-neon-cyan/15 via-neon-purple/10 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <svg class="w-32 h-32 text-stone-300 group-hover:scale-110 transition-transform duration-500" viewBox="0 0 100 100" fill="none">
+                                <rect x="18" y="18" width="26" height="26" rx="6" stroke="#ff5733" stroke-width="1.5"/>
+                                <rect x="56" y="18" width="26" height="26" rx="6" stroke="#ff7b54" stroke-width="1.5" stroke-opacity="0.5"/>
+                                <rect x="18" y="56" width="26" height="26" rx="6" stroke="#ff7b54" stroke-width="1.5" stroke-opacity="0.5"/>
+                                <rect x="56" y="56" width="26" height="26" rx="6" stroke="#e11d48" stroke-width="1.5"/>
+                            </svg>
+                            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-mono bg-oled/90 border border-white/10 text-stone-300">experiment</span>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <h3 class="font-display text-xl font-semibold text-[#fff0e6] group-hover:text-neon-cyan transition-colors">crt-dreams // retro shader</h3>
+                            <i data-lucide="arrow-up-right" class="w-5 h-5 text-stone-500 group-hover:text-neon-cyan group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"></i>
+                        </div>
+                        <p class="text-sm text-stone-400 leading-relaxed mb-6">
+                            drop any image or gif in and it melts it into an authentic 1994 amber-phosphor CRT monitor complete with degauss button.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pt-4 border-t border-white/[0.05]">
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">retro</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">visuals</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-400 font-mono text-xs">degauss</span>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+        <!-- ME BENTO GRID -->
+        <section id="me" class="py-20 scroll-mt-20">
+            <div class="reveal mb-12">
+                <div class="font-mono text-xs uppercase tracking-widest text-neon-purple mb-2">// 02. about</div>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-[#fff0e6] tracking-tight">about me</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- Bento Card 1: Obsessions -->
+                <div class="reveal spotlight-card rounded-3xl p-7 md:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 text-neon-cyan font-mono text-xs mb-3">
+                            <i data-lucide="compass" class="w-4 h-4"></i>
+                            <span>what i'm into right now</span>
+                        </div>
+                        <h3 class="font-display text-2xl font-semibold text-[#fff0e6] mb-2">making the web feel weird again</h3>
+                        <p class="text-sm text-stone-400 max-w-xl mb-6">
+                            remember when websites had secret buttons, custom cursors, and pointless physics toys? i’m trying to bring that energy back, minus the 2004 popups.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-colors">
+                            <div class="font-mono text-xs text-neon-cyan mb-1">01</div>
+                            <div class="font-display font-medium text-[#fff0e6] text-sm">css animations</div>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-colors">
+                            <div class="font-mono text-xs text-neon-purple mb-1">02</div>
+                            <div class="font-display font-medium text-[#fff0e6] text-sm">weird art</div>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-colors">
+                            <div class="font-mono text-xs text-neon-blue mb-1">03</div>
+                            <div class="font-display font-medium text-[#fff0e6] text-sm">tiny web games</div>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-colors">
+                            <div class="font-mono text-xs text-neon-cyan mb-1">04</div>
+                            <div class="font-display font-medium text-[#fff0e6] text-sm">cool visualizers</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bento Card 2: Vibe Rulebook -->
+                <div class="reveal delay-100 spotlight-card rounded-3xl p-7 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 text-neon-purple font-mono text-xs mb-3">
+                            <i data-lucide="moon" class="w-4 h-4"></i>
+                            <span>night owl certified</span>
+                        </div>
+                        <h3 class="font-display text-xl font-semibold text-[#fff0e6] mb-2">strictly dark mode</h3>
+                        <p class="text-sm text-stone-400 leading-relaxed">
+                            everything i make is tuned for 2am browsing. zero white screens. 
+                        </p>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-white/[0.05] flex items-center justify-between text-xs font-mono text-stone-400">
+                        <span>vibe check</span>
+                        <span class="text-neon-cyan">100% lax</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SOCIALS SECTION -->
+        <section id="socials" class="py-20 scroll-mt-20">
+            <div class="reveal mb-10">
+                <div class="font-mono text-xs uppercase tracking-widest text-neon-cyan mb-2">// 03. elsewhere</div>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-[#fff0e6] tracking-tight">socials</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- GitHub -->
+                <a href="https://github.com/cmoneon" target="_blank" rel="noopener noreferrer" class="reveal spotlight-card rounded-3xl p-6 flex flex-col justify-between group">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-10 h-10 rounded-2xl bg-oled border border-white/[0.06] flex items-center justify-center text-neon-cyan group-hover:scale-110 transition-transform">
+                            <i class="fa-brands fa-github text-lg"></i>
+                        </div>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-stone-500 group-hover:text-neon-cyan group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"></i>
+                    </div>
+                    <div>
+                        <div class="font-display font-semibold text-[#fff0e6] text-lg group-hover:text-neon-cyan transition-colors">github</div>
+                        <div class="font-mono text-xs text-stone-500 mt-0.5">@cmoneon</div>
+                    </div>
+                </a>
+
+                <!-- YouTube -->
+                <a href="https://youtube.com/@CmoNeon" target="_blank" rel="noopener noreferrer" class="reveal delay-100 spotlight-card rounded-3xl p-6 flex flex-col justify-between group">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-10 h-10 rounded-2xl bg-oled border border-white/[0.06] flex items-center justify-center text-neon-purple group-hover:scale-110 transition-transform">
+                            <i class="fa-brands fa-youtube text-lg"></i>
+                        </div>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-stone-500 group-hover:text-neon-purple group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"></i>
+                    </div>
+                    <div>
+                        <div class="font-display font-semibold text-[#fff0e6] text-lg group-hover:text-neon-purple transition-colors">youtube</div>
+                        <div class="font-mono text-xs text-stone-500 mt-0.5">@CmoNeon</div>
+                    </div>
+                </a>
+
+                <!-- Twitter -->
+                <a href="https://x.com/cmoneon" target="_blank" rel="noopener noreferrer" class="reveal delay-200 spotlight-card rounded-3xl p-6 flex flex-col justify-between group">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-10 h-10 rounded-2xl bg-oled border border-white/[0.06] flex items-center justify-center text-neon-blue group-hover:scale-110 transition-transform">
+                            <i class="fa-brands fa-x-twitter text-lg"></i>
+                        </div>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-stone-500 group-hover:text-neon-blue group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"></i>
+                    </div>
+                    <div>
+                        <div class="font-display font-semibold text-[#fff0e6] text-lg group-hover:text-neon-blue transition-colors">twitter</div>
+                        <div class="font-mono text-xs text-stone-500 mt-0.5">@cmoneon</div>
+                    </div>
+                </a>
+
+                <!-- Discord -->
+                <a href="https://discord.com/users/698875171788029963" target="_blank" rel="noopener noreferrer" class="reveal delay-200 spotlight-card rounded-3xl p-6 flex flex-col justify-between group">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-10 h-10 rounded-2xl bg-oled border border-white/[0.06] flex items-center justify-center text-neon-blue group-hover:scale-110 transition-transform">
+                            <i class="fa-brands fa-discord text-lg"></i>
+                        </div>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-stone-500 group-hover:text-neon-blue group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"></i>
+                    </div>
+                    <div>
+                        <div class="font-display font-semibold text-[#fff0e6] text-lg group-hover:text-neon-blue transition-colors">discord</div>
+                        <div class="font-mono text-xs text-stone-500 mt-0.5">@cmoneon</div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Minimal Footer -->
+        <footer class="pt-12 mt-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-stone-500">
+            <div>© <span id="year"></span> cmoneon — powered by fire &amp; dark mode.</div>
+        </footer>
+
+    </main>
+
+    <!-- Custom Non-Intrusive Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 translate-y-20 opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-3 px-4 py-3 rounded-2xl bg-surface border border-neon-cyan/40 text-[#fff0e6] text-xs font-mono shadow-2xl">
+        <i data-lucide="flame" class="w-4 h-4 text-neon-cyan"></i>
+        <span id="toast-message">notification</span>
+    </div>
+
+    <!-- All Interactive Scripts & Animations -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Set current year & live UTC clock
+        document.getElementById('year').textContent = new Date().getFullYear();
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('local-clock').textContent = now.toISOString().slice(11, 19) + ' UTC';
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Toast Helper (Replaces alert)
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-message');
+        let toastTimeout;
+        function showToast(msg) {
+            toastMsg.textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+
+        // Copy Discord Handle Button
+        const copyDiscordBtn = document.getElementById('copy-discord');
+        if (copyDiscordBtn) {
+            copyDiscordBtn.addEventListener('click', () => {
+                const tempInput = document.createElement('textarea');
+                tempInput.value = 'cmoneon';
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                showToast('copied "cmoneon" to clipboard');
+            });
+        }
+
+        // Global Spotlight & Card Glow Coordinates
+        window.addEventListener('mousemove', (e) => {
+            document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+            document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+
+            document.querySelectorAll('.spotlight-card').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--card-mouse-x', `${e.clientX - rect.left}px`);
+                card.style.setProperty('--card-mouse-y', `${e.clientY - rect.top}px`);
+            });
+        });
+
+        // 3D Perspective Tilt on Project Cards
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -4;
+                const rotateY = ((x - centerX) / centerX) * 4;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+            });
+        });
+
+        // Magnetic Buttons Micro-Interaction
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = (e.clientX - rect.left - rect.width / 2) * 0.22;
+                const y = (e.clientY - rect.top - rect.height / 2) * 0.22;
+                btn.style.transform = `translate(${x}px, ${y}px)`;
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate(0px, 0px)';
+            });
+        });
+
+        // Rotating Fun Typewriter Phrases
+        const phrases = [
+            'weird little web toys',
+            'late-night browser experiments',
+            'interactive visual eye-candy',
+            'stuff just for the fun of it'
+        ];
+        let phraseIdx = 0;
+        let charIdx = phrases[0].length;
+        let isDeleting = false;
+        const typeEl = document.getElementById('typewriter');
+
+        function tickTypewriter() {
+            const current = phrases[phraseIdx];
+            if (isDeleting) {
+                charIdx--;
+            } else {
+                charIdx++;
+            }
+            typeEl.textContent = current.substring(0, charIdx);
+
+            let speed = isDeleting ? 35 : 70;
+            if (!isDeleting && charIdx === current.length) {
+                speed = 2400;
+                isDeleting = true;
+            } else if (isDeleting && charIdx === 0) {
+                isDeleting = false;
+                phraseIdx = (phraseIdx + 1) % phrases.length;
+                speed = 400;
+            }
+            setTimeout(tickTypewriter, speed);
+        }
+        setTimeout(tickTypewriter, 2500);
+
+        // Scroll Reveal Observer & Top Progress Bar
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.12 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('scroll-progress').style.width = scrolled + '%';
+        });
+
+        // Project Category Filter
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-neon-cyan/20', 'text-neon-cyan');
+                    b.classList.add('text-stone-400');
+                });
+                btn.classList.add('bg-neon-cyan/20', 'text-neon-cyan');
+                btn.classList.remove('text-stone-400');
+
+                const filter = btn.getAttribute('data-filter');
+                projectCards.forEach(card => {
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Subtle Interactive Ember Constellation Canvas Background
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = Math.min(Math.floor(window.innerWidth / 26), 48);
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    radius: Math.random() * 1.6 + 0.6,
+                    isRed: Math.random() > 0.65 /* Sunset coral-orange and crimson-rose */
+                });
+            }
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.isRed ? 'rgba(225, 29, 72, 0.55)' : 'rgba(255, 87, 51, 0.55)';
+                ctx.fill();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 130) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `rgba(255, 87, 51, ${(1 - dist / 130) * 0.14})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+        });
+
+        window.onload = function () {
+            resizeCanvas();
+            initParticles();
+            animateCanvas();
+        };
+    </script>
+</body>
+</html>
