@@ -129,6 +129,11 @@
         .delay-200 { transition-delay: 200ms; }
         .delay-300 { transition-delay: 300ms; }
 
+        /* Clear stagger delay on hover so 3D tilt responds immediately on all cards */
+        .tilt-card:hover {
+            transition-delay: 0ms !important;
+        }
+
         /* Card Glow & 3D Tilt */
         .spotlight-card {
             position: relative;
@@ -398,7 +403,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <!-- Bento Card 1: Obsessions -->
-                <div class="reveal spotlight-card rounded-3xl p-7 md:col-span-2 flex flex-col justify-between">
+                <div class="reveal spotlight-card tilt-card rounded-3xl p-7 md:col-span-2 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 text-neon-cyan font-mono text-xs mb-3">
                             <i data-lucide="compass" class="w-4 h-4"></i>
@@ -411,19 +416,19 @@
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div class="p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-colors">
+                        <div class="tilt-card p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-all duration-200">
                             <div class="font-mono text-xs text-neon-cyan mb-1">01</div>
                             <div class="font-display font-medium text-[#fff0e6] text-sm">css animations</div>
                         </div>
-                        <div class="p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-colors">
+                        <div class="tilt-card p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-all duration-200">
                             <div class="font-mono text-xs text-neon-purple mb-1">02</div>
                             <div class="font-display font-medium text-[#fff0e6] text-sm">weird art</div>
                         </div>
-                        <div class="p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-colors">
+                        <div class="tilt-card p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-all duration-200">
                             <div class="font-mono text-xs text-neon-blue mb-1">03</div>
                             <div class="font-display font-medium text-[#fff0e6] text-sm">tiny web games</div>
                         </div>
-                        <div class="p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-colors">
+                        <div class="tilt-card p-3.5 rounded-2xl bg-oled/80 border border-white/[0.05] hover:border-neon-cyan/40 transition-all duration-200">
                             <div class="font-mono text-xs text-neon-cyan mb-1">04</div>
                             <div class="font-display font-medium text-[#fff0e6] text-sm">cool visualizers</div>
                         </div>
@@ -431,7 +436,7 @@
                 </div>
 
                 <!-- Bento Card 2: Vibe Rulebook -->
-                <div class="reveal delay-100 spotlight-card rounded-3xl p-7 flex flex-col justify-between">
+                <div class="reveal delay-100 spotlight-card tilt-card rounded-3xl p-7 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center gap-2 text-neon-purple font-mono text-xs mb-3">
                             <i data-lucide="moon" class="w-4 h-4"></i>
@@ -460,7 +465,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <!-- GitHub -->
-                <a href="https://github.com/cmoneon" target="_blank" rel="noopener noreferrer" class="reveal spotlight-card rounded-3xl p-6 flex flex-col justify-between group">
+                <a href="https://github.com/cmoneon" target="_blank" rel="noopener noreferrer" class="reveal spotlight-card tilt-card rounded-3xl p-6 flex flex-col justify-between group">
                     <div class="flex items-center justify-between mb-6">
                         <div class="w-10 h-10 rounded-2xl bg-oled border border-white/[0.06] flex items-center justify-center text-neon-cyan group-hover:scale-110 transition-transform">
                             <i class="fa-brands fa-github text-lg"></i>
@@ -474,7 +479,7 @@
                 </a>
 
                 <!-- YouTube -->
-                <a href="https://youtube.com/@CmoNeon" target="_blank" rel="noopener noreferrer" class="reveal delay-100 spotlight-card rounded-3xl p-6 flex flex-col justify-between group">
+                <a href="https://youtube.com/@CmoNeon" target="_blank" rel="noopener noreferrer" class="reveal delay-100 spotlight-card tilt-card rounded-3xl p-6 flex flex-col justify-between group">
                     <div class="flex items-center justify-between mb-6">
                         <div class="w-10 h-10 rounded-2xl bg-oled border border-white/[0.06] flex items-center justify-center text-neon-purple group-hover:scale-110 transition-transform">
                             <i class="fa-brands fa-youtube text-lg"></i>
@@ -488,7 +493,7 @@
                 </a>
 
                 <!-- Twitter -->
-                <a href="https://x.com/cmoneon" target="_blank" rel="noopener noreferrer" class="reveal delay-200 spotlight-card rounded-3xl p-6 flex flex-col justify-between group">
+                <a href="https://x.com/cmoneon" target="_blank" rel="noopener noreferrer" class="reveal delay-200 spotlight-card tilt-card rounded-3xl p-6 flex flex-col justify-between group">
                     <div class="flex items-center justify-between mb-6">
                         <div class="w-10 h-10 rounded-2xl bg-oled border border-white/[0.06] flex items-center justify-center text-neon-blue group-hover:scale-110 transition-transform">
                             <i class="fa-brands fa-x-twitter text-lg"></i>
@@ -502,7 +507,7 @@
                 </a>
 
                 <!-- Discord -->
-                <a href="https://discord.com/users/698875171788029963" target="_blank" rel="noopener noreferrer" class="reveal delay-200 spotlight-card rounded-3xl p-6 flex flex-col justify-between group">
+                <a href="https://discord.com/users/698875171788029963" target="_blank" rel="noopener noreferrer" class="reveal delay-200 spotlight-card tilt-card rounded-3xl p-6 flex flex-col justify-between group">
                     <div class="flex items-center justify-between mb-6">
                         <div class="w-10 h-10 rounded-2xl bg-oled border border-white/[0.06] flex items-center justify-center text-neon-blue group-hover:scale-110 transition-transform">
                             <i class="fa-brands fa-discord text-lg"></i>
